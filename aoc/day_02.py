@@ -2,7 +2,7 @@ def part_one(file_path):
 
     with open(file_path) as f:
         lines = f.readlines()
-    
+
     pos = 0
     for l in lines:
         direction, distance = l.strip().split(" ")
@@ -11,11 +11,12 @@ def part_one(file_path):
         if direction == "forward":
             pos += distance
         elif direction == "down":
-            pos += distance*1j
+            pos += distance * 1j
         elif direction == "up":
-            pos -= distance*1j
-    
+            pos -= distance * 1j
+
     return int(pos.real * pos.imag)
+
 
 def part_two(file_path):
 
@@ -29,13 +30,14 @@ def part_two(file_path):
         distance = int(distance)
 
         if direction == "forward":
-            pos += distance + (aim * distance)*1j
+            pos += distance + (aim * distance) * 1j
         elif direction == "down":
             aim += distance
         elif direction == "up":
             aim -= distance
 
     return int(pos.real * pos.imag)
+
 
 if __name__ == "__main__":
     print(part_one("aoc/inputs/day_02.txt"))

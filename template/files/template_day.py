@@ -12,8 +12,8 @@ def part_one(file_path: str):
     with open(file_path) as f:
         lines = f.readlines()
 
-
     return None
+
 
 def part_two(file_path: str):
     """[summary]
@@ -29,6 +29,7 @@ def part_two(file_path: str):
         lines = f.readlines()
 
     return None
+
 
 if __name__ == "__main__":
     print(part_one("aoc/inputs/day_{day_n}.txt"))

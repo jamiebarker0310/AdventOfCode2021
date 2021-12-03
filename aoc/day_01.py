@@ -8,7 +8,8 @@ def part_one(file_path):
     lines = [int(i.strip()) for i in lines]
 
     # if the next term is
-    return sum([a < b for a,b in  zip(lines[:-1], lines[1:])])
+    return sum([a < b for a, b in zip(lines[:-1], lines[1:])])
+
 
 def part_two(file_path):
 
@@ -25,7 +26,7 @@ def part_two(file_path):
     windows = list(map(sum, windows))
 
     # get count of increasing amount
-    return sum([a < b for a,b in  zip(windows[:-1], windows[1:])])
+    return sum([a < b for a, b in zip(windows[:-1], windows[1:])])
 
 
 if __name__ == "__main__":

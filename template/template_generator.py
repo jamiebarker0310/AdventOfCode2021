@@ -1,5 +1,6 @@
 import sys
 
+
 def generate_template():
 
     day = sys.argv[1].zfill(2)
@@ -11,23 +12,23 @@ def generate_template():
     open(f"tests/test_inputs/day_{day}.txt", "w").close()
 
     # create python file
-    with open('template/files/template_day.py') as f:
+    with open("template/files/template_day.py") as f:
         text = f.read()
 
     text = text.replace("{day_n}", day)
 
-    with open(f'aoc/day_{day}.py',"w") as f:
+    with open(f"aoc/day_{day}.py", "w") as f:
         f.write(text)
 
     # create python test file
-    with open('template/files/template_test.py') as f:
+    with open("template/files/template_test.py") as f:
         text = f.read()
 
     text = text.replace("{day_n}", day)
 
-    with open(f'tests/test_day_{day}.py',"w") as f:
+    with open(f"tests/test_day_{day}.py", "w") as f:
         f.write(text)
 
 
-if __name__== "__main__":
+if __name__ == "__main__":
     generate_template()

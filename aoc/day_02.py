@@ -4,8 +4,8 @@ def part_one(file_path):
         lines = f.readlines()
 
     pos = 0
-    for l in lines:
-        direction, distance = l.strip().split(" ")
+    for row in lines:
+        direction, distance = row.strip().split(" ")
         distance = int(distance)
 
         if direction == "forward":
@@ -25,8 +25,8 @@ def part_two(file_path):
     with open(file_path) as f:
         lines = f.readlines()
 
-    for l in lines:
-        direction, distance = l.strip().split(" ")
+    for row in lines:
+        direction, distance = row.strip().split(" ")
         distance = int(distance)
 
         if direction == "forward":

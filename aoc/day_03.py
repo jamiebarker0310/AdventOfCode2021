@@ -7,7 +7,7 @@ def part_one(file_path):
         lines = f.readlines()
 
     X = np.round(
-        np.array([[int(x) for x in list(l.strip())] for l in lines]).mean(axis=0)
+        np.array([[int(x) for x in list(row.strip())] for row in lines]).mean(axis=0)
     )
 
     gamma = int("".join([str(int(i)) for i in X]), 2)
@@ -21,10 +21,10 @@ def part_two(file_path):
     with open(file_path) as f:
         lines = f.readlines()
 
-    X = np.array([[int(x) for x in list(l.strip())] for l in lines])
+    X = np.array([[int(x) for x in list(row.strip())] for row in lines])
     og = oxygen_generator(X)
 
-    X = np.array([[int(x) for x in list(l.strip())] for l in lines])
+    X = np.array([[int(x) for x in list(row.strip())] for row in lines])
     sr = scrubber_rating(X)
 
     return og * sr

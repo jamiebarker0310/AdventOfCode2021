@@ -4,7 +4,7 @@ import numpy as np
 
 def part_one(file_path: str) -> int:
     """
-    returns product of sum of remaining unchecked numbers of first completed 
+    returns product of sum of remaining unchecked numbers of first completed
     bingo board and the final number called to complete said board
 
     Args:
@@ -38,7 +38,7 @@ def part_one(file_path: str) -> int:
 
 def part_two(file_path: str) -> int:
     """
-    returns product of sum of remaining unchecked numbers of last completed 
+    returns product of sum of remaining unchecked numbers of last completed
     bingo board and the final number called to complete said board
 
 

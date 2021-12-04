@@ -9,7 +9,7 @@ def generate_template():
     open(f"aoc/inputs/day_{day}.txt", "w").close()
 
     # create test input file
-    open(f"tests/test_inputs/day_{day}.txt", "w").close()
+    open(f"tests/test_inputs/test_day_{day}.txt", "w").close()
 
     # create python file
     with open("template/files/template_day.py") as f:

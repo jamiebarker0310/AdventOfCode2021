@@ -44,9 +44,7 @@ def oxygen_generator(X):
     return int("".join([str(int(i)) for i in X[0]]), 2)
 
 
-def scrubber_rating(
-    X,
-):
+def scrubber_rating(X):
     i = 0
     while len(X) > 1:
         if X[:, i].mean() >= 0.5:

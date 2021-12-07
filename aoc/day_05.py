@@ -51,8 +51,9 @@ def day_05(lines: list, diagonal: bool = False) -> int:
     Returns:
         int: the number of points where at least two lines overlap
     """
-    # for each line, split by " -> " to get start and end, then split each of those by ","
-    # map to an integer. This returns list of list of 2 tuples of 2 integers.
+    # for each line, split by " -> " to get start and end,
+    # then split each of those by "," map to an integer.
+    # This returns list of list of 2 tuples of 2 integers.
     pairs = [
         [tuple(map(int, pair.strip().split(","))) for pair in line.split(" -> ")]
         for line in lines

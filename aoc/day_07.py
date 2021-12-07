@@ -1,51 +1,65 @@
+from os import error
 import numpy as np
 
-def part_one(file_path: str):
-    """[summary]
+def part_one(file_path: str) -> int:
+    """
+    returns the absolute error minimiser score
+    the median of the data minimises this.
 
     Args:
-        file_path (str): [description]
+        file_path (str): 
 
     Returns:
-        [type]: [description]
+        int: [description]
     """
 
     # read file
     with open(file_path) as f:
         lines = f.readlines()
 
-    positions = [int(i) for i in lines[0].split(",")]
+    positions = np.array([int(i) for i in lines[0].split(",")], dtype=np.int32)
 
-    proposed_positions = np.array([[i for _ in range(len(positions))] for i in range(min(positions), max(positions))])
+    median = np.median(positions)
 
-    positions_array = np.array([positions for _ in range(proposed_positions.shape[0])])
+    return int(np.linalg.norm(positions - median, ord=1))
 
-    return int(np.linalg.norm(proposed_positions - positions_array, ord=1, axis=1).min())
-
-def part_two(file_path: str):
-    """[summary]
+def part_two(file_path: str) -> int:
+    """
+    returns the n(n+1)/2 error minimiser score
+    the mean of the data approximately minimises the square
 
     Args:
         file_path (str): [description]
 
     Returns:
-        [type]: [description]
+        int: 
     """
 
     with open(file_path) as f:
         lines = f.readlines()
 
-    positions = [int(i) for i in lines[0].split(",")]
+    positions = np.array([int(i) for i in lines[0].split(",")])
 
-    proposed_positions = np.array([[i for _ in range(len(positions))] for i in range(min(positions), max(positions))])
+    mean_floor = np.floor(np.mean(positions))
+    mean_ceil = np.ceil(np.mean(positions))
 
-    positions_array = np.array([positions for _ in range(proposed_positions.shape[0])])
+    return min(calculate_tri_error(positions, mean_floor), calculate_tri_error(positions, mean_ceil))
 
-    difference_array = np.abs(proposed_positions - positions_array)
+def calculate_tri_error(positions: list, pos: int) -> int:
+    """
+    use arithmentic sum to calculate cost of alignment
 
-    cost = np.multiply(difference_array, (difference_array + 1))/2
+    Args:
+        positions (list): list of positions to calculate cost function
+        pos (int): integer to calculate cost of aligning to
 
-    return int(cost.sum(axis=1).min())
+    Returns:
+        int: 
+    """
+    error = np.abs(positions - pos)
+
+    return int(np.linalg.norm(np.multiply(error, error+1)/2, ord=1))
+
 
 if __name__ == "__main__":
     print(part_one("aoc/inputs/day_07.txt"))

@@ -1,13 +1,14 @@
 from os import error
 import numpy as np
 
+
 def part_one(file_path: str) -> int:
     """
     returns the absolute error minimiser score
     the median of the data minimises this.
 
     Args:
-        file_path (str): 
+        file_path (str):
 
     Returns:
         int: [description]
@@ -23,6 +24,7 @@ def part_one(file_path: str) -> int:
 
     return int(np.linalg.norm(positions - median, ord=1))
 
+
 def part_two(file_path: str) -> int:
     """
     returns the n(n+1)/2 error minimiser score
@@ -32,7 +34,7 @@ def part_two(file_path: str) -> int:
         file_path (str): [description]
 
     Returns:
-        int: 
+        int:
     """
 
     with open(file_path) as f:
@@ -43,7 +45,11 @@ def part_two(file_path: str) -> int:
     mean_floor = np.floor(np.mean(positions))
     mean_ceil = np.ceil(np.mean(positions))
 
-    return min(calculate_tri_error(positions, mean_floor), calculate_tri_error(positions, mean_ceil))
+    return min(
+        calculate_tri_error(positions, mean_floor),
+        calculate_tri_error(positions, mean_ceil),
+    )
+
 
 def calculate_tri_error(positions: list, pos: int) -> int:
     """
@@ -54,11 +60,11 @@ def calculate_tri_error(positions: list, pos: int) -> int:
         pos (int): integer to calculate cost of aligning to
 
     Returns:
-        int: 
+        int:
     """
     error = np.abs(positions - pos)
 
-    return int(np.linalg.norm(np.multiply(error, error+1)/2, ord=1))
+    return int(np.linalg.norm(np.multiply(error, error + 1) / 2, ord=1))
 
 
 if __name__ == "__main__":

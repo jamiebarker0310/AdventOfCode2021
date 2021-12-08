@@ -132,7 +132,7 @@ def get_mapping(patterns: list) -> dict:
     confirmed = set(
         [next(iter(key)) for key, value in map_dict.items() if len(value) == 1]
     )
-    
+
     for p6 in p6s:
         diff = p6 - confirmed
         if len(diff) == 1:

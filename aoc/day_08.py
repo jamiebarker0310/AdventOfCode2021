@@ -114,7 +114,7 @@ def get_mapping(patterns: list) -> dict:
         key: count_map[value] for key, value in Counter("".join(patterns)).items()
     }
 
-    p2, p3, p6s = get_length_splits(get_length_splits)
+    p2, p3, p6s = get_length_splits(patterns)
 
     # difference between 2 and 3 maps to a
     map_dict[(p3 - p2).pop()] = set("a")
@@ -132,7 +132,7 @@ def get_mapping(patterns: list) -> dict:
     confirmed = set(
         [next(iter(key)) for key, value in map_dict.items() if len(value) == 1]
     )
-
+    
     for p6 in p6s:
         diff = p6 - confirmed
         if len(diff) == 1:

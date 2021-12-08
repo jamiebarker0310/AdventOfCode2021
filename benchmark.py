@@ -8,7 +8,7 @@ import pandas as pd
 import aoc
 
 
-def benchmark(func: callable, file_path: str, N=5) -> list:
+def benchmark(func: callable, file_path: str, N=10) -> list:
 
     return [time_function(func, file_path) for i in range(N)]
 
@@ -45,7 +45,7 @@ def run_benchmarks():
 
 def save_figure(df):
 
-    df.mean().plot(figsize=(15, 10), kind="bar")
+    df.median().plot(figsize=(15, 10), kind="bar")
     plt.xticks(ticks=range(len(df.columns)), labels=df.columns, rotation=90)
     plt.ylabel("seconds")
     plt.yscale("log")

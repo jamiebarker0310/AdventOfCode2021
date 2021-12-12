@@ -3,7 +3,6 @@ from functools import reduce
 from typing import Tuple
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def part_one(file_path: str):

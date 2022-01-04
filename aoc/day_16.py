@@ -43,8 +43,8 @@ class Packet:
                 self.bits = bin_str[7 + 15 :]
             # If the length type ID is 1
             elif self.length_type_id == 1:
-                # then the next 11 bits are a number that represents the number of sub-packets
-                # immediately contained by this packet.
+                # then the next 11 bits are a number that represents the number
+                # of sub-packets immediately contained by this packet.
                 self.n_subpackets = int(bin_str[7 : 7 + 11], 2)
                 self.bits = bin_str[7 + 11 :]
             # calculate subpackets
@@ -141,22 +141,22 @@ class Packet:
             return self.literal_value
         elif self.type_id == 5:
             assert len(self.subpackets) == 2
-            return int(
-                self.subpackets[0].calculate_value()
-                > self.subpackets[1].calculate_value()
-            )
+            s0 = self.subpackets[0].calculate_value()
+            s1 = self.subpackets[1].calculate_value()
+            cond = s0 > s1
+            return int(cond)
         elif self.type_id == 6:
             assert len(self.subpackets) == 2
-            return int(
-                self.subpackets[0].calculate_value()
-                < self.subpackets[1].calculate_value()
-            )
+            s0 = self.subpackets[0].calculate_value()
+            s1 = self.subpackets[1].calculate_value()
+            cond = s0 < s1
+            return int(cond)
         elif self.type_id == 7:
             assert len(self.subpackets) == 2
-            return int(
-                self.subpackets[0].calculate_value()
-                == self.subpackets[1].calculate_value()
-            )
+            s0 = self.subpackets[0].calculate_value()
+            s1 = self.subpackets[1].calculate_value()
+            cond = s0 == s1
+            return int(cond)
 
 
 def part_one(file_path: str) -> int:

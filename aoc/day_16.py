@@ -1,231 +1,225 @@
+from typing import List
 import numpy as np
-
 class Packet:
+    """
+    A class to represent and parse a packet
 
-    def __init__(self, bits):
-        self.version = int(bits[:3], 2)
-        self.type_id = int(bits[3:6], 2)
+    """
+
+    def __init__(self, bin_str: str) -> None:
+        """
+        initialise array
+
+        Args:
+            bin_str (str): binary string that is parsed
+        """
+        # initialise bin string
+        self.bin_str = bin_str
+        # the first three bits encode the packet version
+        self.version = int(bin_str[:3],2)
+        # the next three bits encode the packet type ID
+        self.type_id = int(bin_str[3:6],2)
+        # Packets with type ID 4 represent a literal value
         self.literal = self.type_id == 4
-
-        self.value = None
+        # initialise empty subpackets
         self.subpackets = []
-        self.remaining_bits = None
 
-
+        # if literal
         if self.literal:
-            self.bits = bits[6:]
+            # set bits
+            self.bits = bin_str[6:]
+            # calculate value
             self.calculate_literal_value()
-        
         else:
-            self.length_id = bits[6]
-            self.bits = bits[7:]
+            # the bit immediately after the packet header is called the length type ID
+            self.length_type_id = int(bin_str[6])
+            # If the length type ID is 0
+            if self.length_type_id == 0:
+                # then the next 15 bits are a number that represents the total length in 
+                # bits of the sub-packets contained by this packet.
+                self.total_bit_length = int(bin_str[7:7+15], 2)
+                self.bits = bin_str[7+15:]
+            # If the length type ID is 1
+            elif self.length_type_id == 1:
+                # then the next 11 bits are a number that represents the number of sub-packets 
+                # immediately contained by this packet.
+                self.n_subpackets = int(bin_str[7:7+11], 2)
+                self.bits = bin_str[7+11:]
+            # calculate subpackets
             self.calculate_subpackets()
-    
-    def calculate_literal_value(self):
 
-        bin_str = ""
+    def calculate_literal_value(self) -> int:
+        """
+        calculates literal value of Packet
+
+        Returns:
+            int: literal value
+        """
+        # initialise empty binary string
+        value_str = ""
         for i in range(0, len(self.bits), 5):
-            bin_str += self.bits[i + 1 : i + 5]
-
+            # add the last 4 of groups of 5
+            value_str += self.bits[i+1:i+5]
+            # if the initial bit is a 0
             if self.bits[i] == "0":
-                self.value = int(bin_str, 2)
+                # then calculate literal value
+                self.literal_value = int(value_str, 2)
+                # output remaining bits
                 self.remaining_bits = self.bits[i+5:]
-                return self.value
+                # return literal value
+                return self.literal_value
+
+    def calculate_subpackets(self) -> List:
+        """
+        calculates the subpackets of packet
+
+        Returns:
+            List[Packet]:
+        """
+        # if length type id is 0
+        if self.length_type_id == 0:
+            # calculate how many bits will be remaining
+            remaining_bits = self.bits
+            initial_length = len(self.bits)
+            final_remain_length = initial_length - self.total_bit_length
+            # while the remaining bits are longer than the final length
+            while len(remaining_bits) > final_remain_length:
+                # create new packet
+                packet = Packet(remaining_bits)
+                # append packet to subpackets
+                self.subpackets.append(packet)
+                # updates remaining bits
+                remaining_bits = packet.remaining_bits
+        # if length type id is 1
+        elif self.length_type_id == 1:
+            # initialise remaining bits
+            remaining_bits = self.bits
+            # while there are not enough subpackets
+            while len(self.subpackets) < self.n_subpackets:
+                # create new packet
+                packet = Packet(remaining_bits)
+                # append packet to subpackets
+                self.subpackets.append(packet)
+                # updates remaining bits
+                remaining_bits = packet.remaining_bits
+        # set remaining bits for this packet
+        self.remaining_bits = remaining_bits
+        # return subpackets
+        return self.subpackets
     
-    def calculate_subpackets(self):
+    def calculate_version_sum(self) -> int:
+        """
+        calculate sum of versions of packet and subsequent subpackets
 
-        if self.length_id == 0:
-            length = int(self.bits[:15], 2)
-            self.bits = self.bits[15:]
-        
-        else:
-            n_subpackets = int(self.bits[:11], 2)
-            self.bits = self.bits[11:]
-            
-        subpacket = Packet(self.bits)
-        self.subpackets.append(subpacket)
+        Returns:
+            int: version sum
+        """
+        # add version to sum of versions in subpacket
+        return self.version + sum([packet.calculate_version_sum() for packet in self.subpackets])
 
-        remaining_bits = subpacket.remaining_bits
-        while remaining_bits != "0" * len(remaining_bits):
-            subpacket = Packet(remaining_bits)
-            self.subpackets.append(subpacket)
-            remaining_bits = subpacket.remaining_bits
+    def calculate_value(self):
+        """
+        calculate value of packet
+
+        Returns:
+            int:
+        """
+
+        if self.type_id == 0:
+            return sum([packet.calculate_value() for packet in self.subpackets])
+        elif self.type_id == 1:
+            return np.product([packet.calculate_value() for packet in self.subpackets])
+        elif self.type_id == 2:
+            return min([packet.calculate_value() for packet in self.subpackets])
+        elif self.type_id == 3:
+            return max([packet.calculate_value() for packet in self.subpackets])
+        elif self.type_id == 4:
+            return self.literal_value
+        elif self.type_id == 5:
+            assert len(self.subpackets) == 2
+            return int(self.subpackets[0].calculate_value() > self.subpackets[1].calculate_value())
+        elif self.type_id == 6:
+            assert len(self.subpackets) == 2
+            return int(self.subpackets[0].calculate_value() < self.subpackets[1].calculate_value())
+        elif self.type_id == 7:
+            assert len(self.subpackets) == 2
+            return int(self.subpackets[0].calculate_value() == self.subpackets[1].calculate_value())
 
 
-
-
-        if length_id == 1:
-            
-
-
-        
-
-
-
-
-def part_one(file_path: str):
-    """[summary]
+def part_one(file_path: str) -> int:
+    """
+    calculates version sum of packet
 
     Args:
-        file_path (str): [description]
+        file_path (str): 
 
     Returns:
-        [type]: [description]
+        int: [description]
     """
 
     # read file
     with open(file_path) as f:
         lines = f.readlines()
-    total = 0
-    for line in lines:
-        # convert to binary
-        bin_line = convert_to_binary(line.strip())
-
-        version_sum = parse_packets_1(bin_line)
-
-        total += version_sum
-
-    return total
+    # convert to binary
+    bin_str = hex_to_bin(lines[0])
+    # initialise packet
+    packet = Packet(bin_str)
+    # calculate version sum
+    return packet.calculate_version_sum()
 
 
-def part_two(file_path: str):
-    """[summary]
+def part_two(file_path: str) -> int:
+    """
+    calculate value of packet
 
     Args:
         file_path (str): [description]
 
     Returns:
-        [type]: [description]
+        int: packet value
     """
-
     # read file
     with open(file_path) as f:
         lines = f.readlines()
-    total = 0
-    for line in lines:
-        # convert to binary
-        bin_line = convert_to_binary(line.strip())
-
-        total += parse_packets_2(bin_line)
-
-    return total
+    # convert to binary
+    bin_str = hex_to_bin(lines[0])
+    # initialise packet
+    packet = Packet(bin_str)
+    # calculate version sum
+    return packet.calculate_value()
 
 
-def parse_packets_1(bin_line) -> str:
 
-    if bin_line == "0" * len(bin_line):
-        return 0
+def hex_to_bin(hex_str: str) -> str:
+    """
+    converts hex string to padded binary
 
-    version = int(bin_line[:3], 2)
-    type_id = int(bin_line[3:6], 2)
-    total = 0
+    Args:
+        hex_str (str): hex string to convert to binary
 
-    if type_id == 4:
-        subpackets = bin_line[6:]
-        bin_str = ""
-        for i in range(0, len(subpackets), 5):
-            bin_str += subpackets[i + 1 : i + 5]
-            if subpackets[i] == "0":
-                return version + parse_packets_1(subpackets[i + 5 :])
-
-    else:
-        length_id = int(bin_line[6])
-        subpackets = bin_line[7:]
-        if length_id == 0:
-            length = int(subpackets[:15], 2)
-            subpackets = subpackets[15:]
-            return version + parse_packets_1(subpackets)
-
-        if length_id == 1:
-            n_subpackets = int(subpackets[:11], 2)
-            subpackets = subpackets[11:]
-            return version + parse_packets_1(subpackets)
-
-    return total
-
-
-def parse_packets_2(bin_line) -> str:
-
-    if bin_line == "0" * len(bin_line):
-        return []
-
-    version = int(bin_line[:3], 2)
-    type_id = int(bin_line[3:6], 2)
-    total = 0
-
-    print(bin_line)
-    print(version, type_id)
-
-    if type_id == 4:
-        subpackets = bin_line[6:]
-        bin_str = ""
-        for i in range(0, len(subpackets), 5):
-            bin_str += subpackets[i + 1 : i + 5]
-            if subpackets[i] == "0":
-                other_subpackets = parse_packets_2(subpackets[i + 5 :])
-                print("OTHER_SUBPACKETS :", other_subpackets)
-                return [int(bin_str, 2)] + other_subpackets
-
-    else:
-        length_id = int(bin_line[6])
-        subpackets = bin_line[7:]
-        if length_id == 0:
-            length = int(subpackets[:15], 2)
-            subpackets = subpackets[15:]
-            return_subpackets(subpackets, type_id)
-
-        if length_id == 1:
-            n_subpackets = int(subpackets[:11], 2)
-            subpackets = subpackets[11:]
-            return_subpackets(subpackets, type_id)
-
-    return total
-
-
-def return_subpackets(subpackets, type_id):
-
-    if type_id == 0:
-        return sum(parse_packets_2(subpackets))
-    if type_id == 1:
-        return np.prod(parse_packets_2(subpackets))
-    if type_id == 2:
-        return min(parse_packets_2(subpackets))
-    if type_id == 3:
-        return max(parse_packets_2(subpackets))
-    if type_id == 5:
-        subpackets = parse_packets_2(subpackets)
-        return int(subpackets[0] > subpackets[1])
-    if type_id == 6:
-        subpackets = parse_packets_2(subpackets)
-        return int(subpackets[0] < subpackets[1])
-    if type_id == 7:
-        subpackets = parse_packets_2(subpackets)
-        return int(subpackets[0] == subpackets[1])
-
-
-def convert_to_binary(hex_str: str) -> str:
-
+    Returns:
+        str: padded binary string
+    """
+    # map of hex code to binary code
     hex_to_bin = {
-        "0": "0000",
-        "1": "0001",
-        "2": "0010",
-        "3": "0011",
-        "4": "0100",
-        "5": "0101",
-        "6": "0110",
-        "7": "0111",
-        "8": "1000",
-        "9": "1001",
-        "A": "1010",
-        "B": "1011",
-        "C": "1100",
-        "D": "1101",
-        "E": "1110",
-        "F": "1111",
-    }
-
-    return "".join(map(lambda x: hex_to_bin[x], hex_str))
-
+        "0" : "0000",
+        "1" : "0001",
+        "2" : "0010",
+        "3" : "0011",
+        "4" : "0100",
+        "5" : "0101",
+        "6" : "0110",
+        "7" : "0111",
+        "8" : "1000",
+        "9" : "1001",
+        "A" : "1010",
+        "B" : "1011",
+        "C" : "1100",
+        "D" : "1101",
+        "E" : "1110",
+        "F" : "1111"}
+    # convert hex list to string
+    return "".join(hex_to_bin[a] for a in hex_str)
 
 if __name__ == "__main__":
     print(part_one("aoc/inputs/day_16.txt"))

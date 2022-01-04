@@ -1,5 +1,7 @@
 from typing import List
 import numpy as np
+
+
 class Packet:
     """
     A class to represent and parse a packet
@@ -16,9 +18,9 @@ class Packet:
         # initialise bin string
         self.bin_str = bin_str
         # the first three bits encode the packet version
-        self.version = int(bin_str[:3],2)
+        self.version = int(bin_str[:3], 2)
         # the next three bits encode the packet type ID
-        self.type_id = int(bin_str[3:6],2)
+        self.type_id = int(bin_str[3:6], 2)
         # Packets with type ID 4 represent a literal value
         self.literal = self.type_id == 4
         # initialise empty subpackets
@@ -35,16 +37,16 @@ class Packet:
             self.length_type_id = int(bin_str[6])
             # If the length type ID is 0
             if self.length_type_id == 0:
-                # then the next 15 bits are a number that represents the total length in 
+                # then the next 15 bits are a number that represents the total length in
                 # bits of the sub-packets contained by this packet.
-                self.total_bit_length = int(bin_str[7:7+15], 2)
-                self.bits = bin_str[7+15:]
+                self.total_bit_length = int(bin_str[7 : 7 + 15], 2)
+                self.bits = bin_str[7 + 15 :]
             # If the length type ID is 1
             elif self.length_type_id == 1:
-                # then the next 11 bits are a number that represents the number of sub-packets 
+                # then the next 11 bits are a number that represents the number of sub-packets
                 # immediately contained by this packet.
-                self.n_subpackets = int(bin_str[7:7+11], 2)
-                self.bits = bin_str[7+11:]
+                self.n_subpackets = int(bin_str[7 : 7 + 11], 2)
+                self.bits = bin_str[7 + 11 :]
             # calculate subpackets
             self.calculate_subpackets()
 
@@ -59,13 +61,13 @@ class Packet:
         value_str = ""
         for i in range(0, len(self.bits), 5):
             # add the last 4 of groups of 5
-            value_str += self.bits[i+1:i+5]
+            value_str += self.bits[i + 1 : i + 5]
             # if the initial bit is a 0
             if self.bits[i] == "0":
                 # then calculate literal value
                 self.literal_value = int(value_str, 2)
                 # output remaining bits
-                self.remaining_bits = self.bits[i+5:]
+                self.remaining_bits = self.bits[i + 5 :]
                 # return literal value
                 return self.literal_value
 
@@ -106,7 +108,7 @@ class Packet:
         self.remaining_bits = remaining_bits
         # return subpackets
         return self.subpackets
-    
+
     def calculate_version_sum(self) -> int:
         """
         calculate sum of versions of packet and subsequent subpackets
@@ -115,7 +117,9 @@ class Packet:
             int: version sum
         """
         # add version to sum of versions in subpacket
-        return self.version + sum([packet.calculate_version_sum() for packet in self.subpackets])
+        return self.version + sum(
+            [packet.calculate_version_sum() for packet in self.subpackets]
+        )
 
     def calculate_value(self):
         """
@@ -137,13 +141,22 @@ class Packet:
             return self.literal_value
         elif self.type_id == 5:
             assert len(self.subpackets) == 2
-            return int(self.subpackets[0].calculate_value() > self.subpackets[1].calculate_value())
+            return int(
+                self.subpackets[0].calculate_value()
+                > self.subpackets[1].calculate_value()
+            )
         elif self.type_id == 6:
             assert len(self.subpackets) == 2
-            return int(self.subpackets[0].calculate_value() < self.subpackets[1].calculate_value())
+            return int(
+                self.subpackets[0].calculate_value()
+                < self.subpackets[1].calculate_value()
+            )
         elif self.type_id == 7:
             assert len(self.subpackets) == 2
-            return int(self.subpackets[0].calculate_value() == self.subpackets[1].calculate_value())
+            return int(
+                self.subpackets[0].calculate_value()
+                == self.subpackets[1].calculate_value()
+            )
 
 
 def part_one(file_path: str) -> int:
@@ -151,7 +164,7 @@ def part_one(file_path: str) -> int:
     calculates version sum of packet
 
     Args:
-        file_path (str): 
+        file_path (str):
 
     Returns:
         int: [description]
@@ -189,7 +202,6 @@ def part_two(file_path: str) -> int:
     return packet.calculate_value()
 
 
-
 def hex_to_bin(hex_str: str) -> str:
     """
     converts hex string to padded binary
@@ -202,24 +214,26 @@ def hex_to_bin(hex_str: str) -> str:
     """
     # map of hex code to binary code
     hex_to_bin = {
-        "0" : "0000",
-        "1" : "0001",
-        "2" : "0010",
-        "3" : "0011",
-        "4" : "0100",
-        "5" : "0101",
-        "6" : "0110",
-        "7" : "0111",
-        "8" : "1000",
-        "9" : "1001",
-        "A" : "1010",
-        "B" : "1011",
-        "C" : "1100",
-        "D" : "1101",
-        "E" : "1110",
-        "F" : "1111"}
+        "0": "0000",
+        "1": "0001",
+        "2": "0010",
+        "3": "0011",
+        "4": "0100",
+        "5": "0101",
+        "6": "0110",
+        "7": "0111",
+        "8": "1000",
+        "9": "1001",
+        "A": "1010",
+        "B": "1011",
+        "C": "1100",
+        "D": "1101",
+        "E": "1110",
+        "F": "1111",
+    }
     # convert hex list to string
     return "".join(hex_to_bin[a] for a in hex_str)
+
 
 if __name__ == "__main__":
     print(part_one("aoc/inputs/day_16.txt"))
